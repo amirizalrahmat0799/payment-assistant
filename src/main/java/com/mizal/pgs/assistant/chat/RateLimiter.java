@@ -1,6 +1,7 @@
 package com.mizal.pgs.assistant.chat;
 
 import com.mizal.pgs.assistant.config.AssistantProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -22,6 +23,7 @@ public class RateLimiter {
     private final int limit;
     private final Clock clock;
 
+    @Autowired
     public RateLimiter(AssistantProperties properties) {
         this(properties.rateLimit().requestsPerMinute(), Clock.systemUTC());
     }
