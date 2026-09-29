@@ -1,0 +1,65 @@
+# Assistant + its vector database + a local model server.
+#
+# 1. Start the gateway first (in payment-gateway-sim):  docker compose up -d
+# 2. Then here:                                           docker compose up -d --build
+#    The first start pulls the models (~2.5 GB), which takes a few minutes.
+#
+# To use Amazon Bedrock instead of Ollama, see docs/aws-bedrock-setup.md.
+name: payment-assistant
+
+services:
+  assistant-db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: assistant
+      POSTGRES_PASSWORD: assistant
+      POSTGRES_DB: assistant
+    ports:
+      - "5433:5432"          # 5433 so it doesn't clash with the gateway's Postgres
+    volumes:
+      - assistant-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistant"]
+      interval: 5s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama   # downloaded models survive restarts
+
+  assistant:
+    build: .
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://assistant-db:5432/assistant
+      SPRING_AI_OLLAMA_BASE_URL: http://ollama:11434
+      ASSISTANT_GATEWAY_MERCHANT_URL: http://merchant-service:8081
+      ASSISTANT_GATEWAY_PAYMENT_URL: http://payment-service:8082
+      ASSISTANT_GATEWAY_SETTLEMENT_URL: http://settlement-service:8084
+      # Bedrock instead of Ollama:
+      # SPRING_PROFILES_ACTIVE: aws
+      # AWS_REGION: us-east-1
+      # AWS_PROFILE: pgs-assistant
+    # volumes:
+    #   - ${USERPROFILE:-~}/.aws:/home/app/.aws:ro   # AWS credentials for the aws profile
+    depends_on:
+      assistant-db:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    networks:
+      - default
+      - gateway
+
+volumes:
+  assistant-db:
+  ollama:
+
+networks:
+  gateway:
+    name: payment-gateway-sim_default
+    external: true

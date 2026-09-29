@@ -1,0 +1,25 @@
+# Amazon Bedrock: Claude Haiku 4.5 for chat, Titan Text Embeddings V2 for RAG.
+# Credentials come from the standard AWS chain (AWS_PROFILE, env vars, or an IAM role in the cloud).
+# See docs/aws-bedrock-setup.md.
+spring:
+  ai:
+    model:
+      chat: bedrock-converse
+      embedding: bedrock-titan
+    bedrock:
+      aws:
+        region: ${AWS_REGION:us-east-1}
+      converse:
+        chat:
+          options:
+            # Cross-region inference profile; override with BEDROCK_CHAT_MODEL (e.g. us.amazon.nova-lite-v1:0)
+            model: ${BEDROCK_CHAT_MODEL:us.anthropic.claude-haiku-4-5-20251001-v1:0}
+            temperature: 0.2
+            max-tokens: 800
+      titan:
+        embedding:
+          model: amazon.titan-embed-text-v2:0
+    vectorstore:
+      pgvector:
+        table-name: knowledge_titan
+        dimensions: 1024

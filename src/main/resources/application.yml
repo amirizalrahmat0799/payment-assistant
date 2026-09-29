@@ -1,0 +1,67 @@
+server:
+  port: 8085
+  shutdown: graceful
+
+spring:
+  application:
+    name: payment-assistant
+  datasource:
+    url: jdbc:postgresql://localhost:5433/assistant
+    username: assistant
+    password: assistant
+  threads:
+    virtual:
+      enabled: true              # model calls are slow I/O: virtual threads keep Tomcat threads free
+
+  # ---------------------------------------------------------------------------
+  # Default profile: free local models through Ollama (no cloud account needed).
+  # The `aws` profile switches both chat and embeddings to Amazon Bedrock.
+  # ---------------------------------------------------------------------------
+  ai:
+    model:
+      chat: ollama
+      embedding: ollama
+    ollama:
+      base-url: http://localhost:11434
+      init:
+        pull-model-strategy: when_missing
+        timeout: 15m
+      chat:
+        options:
+          model: qwen2.5:3b        # small model with tool-calling support
+          temperature: 0.2
+      embedding:
+        options:
+          model: nomic-embed-text  # 768 dimensions
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        table-name: knowledge_ollama   # one table per embedding model: dimensions differ
+        dimensions: 768
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+
+assistant:
+  gateway:
+    merchant-url: http://localhost:8081
+    payment-url: http://localhost:8082
+    settlement-url: http://localhost:8084
+  rag:
+    top-k: 4
+    similarity-threshold: 0.45
+  rate-limit:
+    requests-per-minute: 20
+  max-message-length: 1000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

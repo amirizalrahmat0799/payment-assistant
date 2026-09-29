@@ -1,0 +1,36 @@
+### Ask the assistant (IntelliJ HTTP Client). Replace the key with a merchant's API key.
+@apiKey = sk_test_replace_me
+
+### 1. A question answered from the documentation (RAG)
+POST http://localhost:8085/api/v1/assistant/chat
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{ "message": "What does insufficient_funds mean and what should my customer do?" }
+
+> {% client.global.set("conversationId", response.body.conversationId); %}
+
+### 2. A question that needs the merchant's data (tool calling), continuing the same conversation
+POST http://localhost:8085/api/v1/assistant/chat
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{ "message": "Did any of my recent payments fail for that reason?", "conversationId": "{{conversationId}}" }
+
+### 3. Payouts
+POST http://localhost:8085/api/v1/assistant/chat
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{ "message": "How much money is waiting to be paid out, and when will I get it?" }
+
+### 4. The assistant is read-only: it explains how to refund instead of doing it
+POST http://localhost:8085/api/v1/assistant/chat
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{ "message": "Refund my last payment." }
+
+### 5. Forget a conversation
+DELETE http://localhost:8085/api/v1/assistant/conversations/{{conversationId}}
+X-Api-Key: {{apiKey}}
