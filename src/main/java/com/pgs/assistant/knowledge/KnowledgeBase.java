@@ -43,7 +43,7 @@ public class KnowledgeBase implements ApplicationRunner {
     private final JdbcClient jdbc;
     private final AssistantProperties properties;
     // ~350 tokens per chunk; sections shorter than that stay whole.
-    private final TokenTextSplitter splitter = new TokenTextSplitter(350, 100, 5, 1000, true);
+    private final TokenTextSplitter splitter = new TokenTextSplitter(350, 100, 5, 1000, true, List.of('.', ',', ';', ':', '!', '?', '\n'));
 
     public KnowledgeBase(VectorStore vectorStore, JdbcClient jdbc, AssistantProperties properties) {
         this.vectorStore = vectorStore;
