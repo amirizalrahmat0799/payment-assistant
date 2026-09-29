@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.mizal.pgs</groupId>
+    <groupId>com.pgs</groupId>
     <artifactId>payment-assistant</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>payment-assistant</name>
