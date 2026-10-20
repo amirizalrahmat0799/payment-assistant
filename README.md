@@ -1,6 +1,6 @@
 # Payment Assistant
 
-![CI](https://github.com/amirizalrahmat0799/payment-assistant/actions/workflows/ci.yml/badge.svg)
+[![CI](https://github.com/amirizalrahmat0799/payment-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/amirizalrahmat0799/payment-assistant/actions/workflows/ci.yml)
 ![Spring AI](https://img.shields.io/badge/Spring_AI-1.1-6DB33F)
 ![Amazon Bedrock](https://img.shields.io/badge/Amazon_Bedrock-Claude_Haiku_4.5-ff9900)
 
